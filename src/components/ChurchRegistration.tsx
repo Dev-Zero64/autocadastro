@@ -119,19 +119,7 @@ const ChurchRegistration = () => {
       description: "Seus dados foram enviados com sucesso!",
     });
     // Reseta formulario pro estado inicial.
-    setFormData({
-      churchName: "Igreja Embaixada da Rocha Viva",
-      fullName: "",
-      gender: "",
-      birthDate: "",
-      cep: "",
-      street: "",
-      neighborhood: "",
-      city: "",
-      state: "",
-      hasKids: false,
-      kids: [],
-    });
+    setFormData(INITIAL_FORM_STATE);
 
     // Reseta avatares.
     setAvatarPreview("");
