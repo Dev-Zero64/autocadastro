@@ -477,7 +477,7 @@ const ChurchRegistration = () => {
         {/* Botão de Envio */}
         <button
           type="submit"
-          className="w-full bg-primary text-white py-2 px-4 rounded-lg hover:bg-primary-dark transition-colors"
+          className="w-full bg-black text-white py-2 px-4 rounded-lg hover:bg-primary-dark transition-colors"
         >
           Finalizar Cadastro
         </button>
