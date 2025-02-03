@@ -1,6 +1,13 @@
 import { useState } from "react";
-import { Camera, ChevronRight, MapPin } from "lucide-react";
+import { Camera, MapPin, Plus, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+
+interface Kid {
+  avatar?: File;
+  name: string;
+  gender: string;
+  birthDate: string;
+}
 
 interface RegistrationFormData {
   avatar?: File;
@@ -10,16 +17,10 @@ interface RegistrationFormData {
   birthDate: string;
   cep: string;
   hasKids: boolean;
-  kids?: {
-    avatar?: File;
-    name: string;
-    gender: string;
-    birthDate: string;
-  }[];
+  kids: Kid[];
 }
 
 const ChurchRegistration = () => {
-  const [step, setStep] = useState(1);
   const [formData, setFormData] = useState<RegistrationFormData>({
     churchName: "Igreja do Nazareno de Jales",
     fullName: "",
@@ -30,6 +31,7 @@ const ChurchRegistration = () => {
     kids: [],
   });
   const [avatarPreview, setAvatarPreview] = useState<string>("");
+  const [kidsAvatarPreviews, setKidsAvatarPreviews] = useState<string[]>([]);
   const { toast } = useToast();
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -39,6 +41,23 @@ const ChurchRegistration = () => {
       const reader = new FileReader();
       reader.onloadend = () => {
         setAvatarPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleKidFileChange = (index: number, event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const updatedKids = [...formData.kids];
+      updatedKids[index] = { ...updatedKids[index], avatar: file };
+      setFormData({ ...formData, kids: updatedKids });
+
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const newPreviews = [...kidsAvatarPreviews];
+        newPreviews[index] = reader.result as string;
+        setKidsAvatarPreviews(newPreviews);
       };
       reader.readAsDataURL(file);
     }
@@ -78,24 +97,34 @@ const ChurchRegistration = () => {
     }
   };
 
+  const addKid = () => {
+    setFormData({
+      ...formData,
+      kids: [...formData.kids, { name: "", gender: "", birthDate: "" }],
+    });
+    setKidsAvatarPreviews([...kidsAvatarPreviews, ""]);
+  };
+
+  const removeKid = (index: number) => {
+    const updatedKids = formData.kids.filter((_, i) => i !== index);
+    const updatedPreviews = kidsAvatarPreviews.filter((_, i) => i !== index);
+    setFormData({ ...formData, kids: updatedKids });
+    setKidsAvatarPreviews(updatedPreviews);
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (step < 3) {
-      setStep(step + 1);
-    } else {
-      console.log("Form submitted:", formData);
-      toast({
-        title: "Cadastro realizado",
-        description: "Seus dados foram enviados com sucesso!",
-      });
-    }
+    console.log("Form submitted:", formData);
+    toast({
+      title: "Cadastro realizado",
+      description: "Seus dados foram enviados com sucesso!",
+    });
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-primary/5 to-primary/10 p-4 md:p-6">
       <div className="max-w-2xl mx-auto">
         <div className="bg-white rounded-2xl shadow-lg p-6 md:p-8 animate-fade-in">
-          {/* Church Logo and Name */}
           <div className="text-center mb-8">
             <img
               src="/lovable-uploads/cb79d8a4-be1d-4746-a3a7-8b7330d4f55b.png"
@@ -106,147 +135,230 @@ const ChurchRegistration = () => {
             <p className="text-gray-600 mt-2">Cadastro de Membros</p>
           </div>
 
-          {/* Progress Steps */}
-          <div className="flex justify-between mb-8">
-            {[1, 2, 3].map((i) => (
-              <div
-                key={i}
-                className={`w-1/3 h-2 rounded-full mx-1 transition-colors duration-300 ${
-                  i <= step ? "bg-primary" : "bg-gray-200"
-                }`}
-              />
-            ))}
-          </div>
-
           <form onSubmit={handleSubmit} className="space-y-6">
-            {step === 1 && (
-              <div className="space-y-6 animate-fade-in">
-                {/* Avatar Upload */}
-                <div className="text-center">
-                  <div className="relative w-32 h-32 mx-auto">
-                    <div
-                      className={`w-full h-full rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden ${
-                        !avatarPreview && "bg-gray-50"
-                      }`}
-                    >
-                      {avatarPreview ? (
-                        <img
-                          src={avatarPreview}
-                          alt="Preview"
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <Camera className="w-8 h-8 text-gray-400" />
-                      )}
-                    </div>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleFileChange}
-                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+            <div className="text-center">
+              <div className="relative w-32 h-32 mx-auto">
+                <div
+                  className={`w-full h-full rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden ${
+                    !avatarPreview && "bg-gray-50"
+                  }`}
+                >
+                  {avatarPreview ? (
+                    <img
+                      src={avatarPreview}
+                      alt="Preview"
+                      className="w-full h-full object-cover"
                     />
-                  </div>
-                  <p className="mt-2 text-sm text-gray-600">Adicionar foto</p>
+                  ) : (
+                    <Camera className="w-8 h-8 text-gray-400" />
+                  )}
                 </div>
-
-                {/* Name Input */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Nome Completo
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.fullName}
-                    onChange={(e) =>
-                      setFormData({ ...formData, fullName: e.target.value })
-                    }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                  />
-                </div>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                />
               </div>
-            )}
+              <p className="mt-2 text-sm text-gray-600">Adicionar foto</p>
+            </div>
 
-            {step === 2 && (
-              <div className="space-y-6 animate-fade-in">
-                {/* Gender Selection */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Sexo
-                  </label>
-                  <select
-                    required
-                    value={formData.gender}
-                    onChange={(e) =>
-                      setFormData({ ...formData, gender: e.target.value })
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Nome Completo
+              </label>
+              <input
+                type="text"
+                required
+                value={formData.fullName}
+                onChange={(e) =>
+                  setFormData({ ...formData, fullName: e.target.value })
+                }
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Sexo
+              </label>
+              <select
+                required
+                value={formData.gender}
+                onChange={(e) =>
+                  setFormData({ ...formData, gender: e.target.value })
+                }
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+              >
+                <option value="">Selecione</option>
+                <option value="M">Masculino</option>
+                <option value="F">Feminino</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Data de Nascimento
+              </label>
+              <input
+                type="date"
+                required
+                value={formData.birthDate}
+                onChange={(e) =>
+                  setFormData({ ...formData, birthDate: e.target.value })
+                }
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                CEP
+              </label>
+              <div className="relative">
+                <input
+                  type="text"
+                  required
+                  value={formData.cep}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      cep: e.target.value.replace(/\D/g, ""),
+                    })
+                  }
+                  onBlur={handleCepBlur}
+                  maxLength={8}
+                  placeholder="00000-000"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                />
+                <MapPin className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              </div>
+            </div>
+
+            <div className="border-t pt-6">
+              <label className="flex items-center space-x-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={formData.hasKids}
+                  onChange={(e) => {
+                    setFormData({ ...formData, hasKids: e.target.checked });
+                    if (!e.target.checked) {
+                      setFormData({ ...formData, hasKids: false, kids: [] });
+                      setKidsAvatarPreviews([]);
                     }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                  }}
+                  className="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary"
+                />
+                <span className="text-sm text-gray-700">Possui filhos?</span>
+              </label>
+            </div>
+
+            {formData.hasKids && (
+              <div className="space-y-6 border-t pt-6">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-lg font-semibold text-gray-700">Filhos</h3>
+                  <button
+                    type="button"
+                    onClick={addKid}
+                    className="flex items-center space-x-2 text-primary hover:text-primary/80"
                   >
-                    <option value="">Selecione</option>
-                    <option value="M">Masculino</option>
-                    <option value="F">Feminino</option>
-                  </select>
+                    <Plus className="w-4 h-4" />
+                    <span>Adicionar Filho</span>
+                  </button>
                 </div>
 
-                {/* Birth Date */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Data de Nascimento
-                  </label>
-                  <input
-                    type="date"
-                    required
-                    value={formData.birthDate}
-                    onChange={(e) =>
-                      setFormData({ ...formData, birthDate: e.target.value })
-                    }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                  />
-                </div>
-              </div>
-            )}
+                {formData.kids.map((kid, index) => (
+                  <div key={index} className="p-4 bg-gray-50 rounded-lg space-y-4">
+                    <div className="flex justify-between items-start">
+                      <div className="text-center">
+                        <div className="relative w-20 h-20">
+                          <div
+                            className={`w-full h-full rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden ${
+                              !kidsAvatarPreviews[index] && "bg-gray-50"
+                            }`}
+                          >
+                            {kidsAvatarPreviews[index] ? (
+                              <img
+                                src={kidsAvatarPreviews[index]}
+                                alt="Kid Preview"
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <Camera className="w-6 h-6 text-gray-400" />
+                            )}
+                          </div>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => handleKidFileChange(index, e)}
+                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                          />
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => removeKid(index)}
+                        className="text-red-500 hover:text-red-600"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
 
-            {step === 3 && (
-              <div className="space-y-6 animate-fade-in">
-                {/* CEP Input */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    CEP
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      required
-                      value={formData.cep}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          cep: e.target.value.replace(/\D/g, ""),
-                        })
-                      }
-                      onBlur={handleCepBlur}
-                      maxLength={8}
-                      placeholder="00000-000"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                    />
-                    <MapPin className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Nome Completo
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={kid.name}
+                        onChange={(e) => {
+                          const updatedKids = [...formData.kids];
+                          updatedKids[index] = { ...kid, name: e.target.value };
+                          setFormData({ ...formData, kids: updatedKids });
+                        }}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Sexo
+                      </label>
+                      <select
+                        required
+                        value={kid.gender}
+                        onChange={(e) => {
+                          const updatedKids = [...formData.kids];
+                          updatedKids[index] = { ...kid, gender: e.target.value };
+                          setFormData({ ...formData, kids: updatedKids });
+                        }}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                      >
+                        <option value="">Selecione</option>
+                        <option value="M">Masculino</option>
+                        <option value="F">Feminino</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Data de Nascimento
+                      </label>
+                      <input
+                        type="date"
+                        required
+                        value={kid.birthDate}
+                        onChange={(e) => {
+                          const updatedKids = [...formData.kids];
+                          updatedKids[index] = { ...kid, birthDate: e.target.value };
+                          setFormData({ ...formData, kids: updatedKids });
+                        }}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                      />
+                    </div>
                   </div>
-                </div>
-
-                {/* Kids Toggle */}
-                <div>
-                  <label className="flex items-center space-x-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={formData.hasKids}
-                      onChange={(e) =>
-                        setFormData({ ...formData, hasKids: e.target.checked })
-                      }
-                      className="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary"
-                    />
-                    <span className="text-sm text-gray-700">Possui filhos?</span>
-                  </label>
-                </div>
+                ))}
               </div>
             )}
 
@@ -255,8 +367,7 @@ const ChurchRegistration = () => {
                 type="submit"
                 className="bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary/90 transition-colors flex items-center space-x-2"
               >
-                <span>{step === 3 ? "Finalizar" : "Próximo"}</span>
-                <ChevronRight className="w-4 h-4" />
+                <span>Finalizar Cadastro</span>
               </button>
             </div>
           </form>
