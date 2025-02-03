@@ -45,7 +45,7 @@ const ChurchRegistration = () => {
     }
   };
 
-  // Função para buscar o endereço pelo CEP usando a API dos Correios
+  // Função para buscar o endereço pelo CEP usando a API ViaCEP.
   const fetchAddressByCep = async (cep: string) => {
     try {
       const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
