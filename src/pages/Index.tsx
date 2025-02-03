@@ -1,7 +1,5 @@
 import ChurchRegistration from "@/components/ChurchRegistration";
 
-const Index = () => {
+export const Index = () => {
   return <ChurchRegistration />;
 };
-
-export default Index;

@@ -1,28 +1,7 @@
 import { useState } from "react";
-import { Camera, MapPin, Plus, Trash2 } from "lucide-react";
+import { Camera, Plus, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-
-interface Kid {
-  avatar?: File;
-  name: string;
-  gender: string;
-  birthDate: string;
-}
-
-interface RegistrationFormData {
-  avatar?: File;
-  churchName: string;
-  fullName: string;
-  gender: string;
-  birthDate: string;
-  cep: string;
-  street: string;
-  neighborhood: string;
-  city: string;
-  state: string;
-  hasKids: boolean;
-  kids: Kid[];
-}
+import { RegistrationFormData } from "@/types/data";
 
 const ChurchRegistration = () => {
   const [formData, setFormData] = useState<RegistrationFormData>({
@@ -149,11 +128,39 @@ const ChurchRegistration = () => {
       title: "Cadastro realizado",
       description: "Seus dados foram enviados com sucesso!",
     });
+    // Reseta formulario pro estado inicial.
+    setFormData({
+      churchName: "Igreja Embaixada da Rocha Viva",
+      fullName: "",
+      gender: "",
+      birthDate: "",
+      cep: "",
+      street: "",
+      neighborhood: "",
+      city: "",
+      state: "",
+      hasKids: false,
+      kids: [],
+    });
+
+    // Reseta avatares.
+    setAvatarPreview("");
+    setKidsAvatarPreviews([]);
   };
 
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md">
-      <h1 className="text-2xl text-center font-bold mb-4">{formData.churchName}</h1>
+      <div className="flex justify-center mb-6">
+        <img
+          src="/logo.jpg"
+          alt="Logo"
+          className="w-24 h-24 rounded-full object-cover shadow-md"
+        />
+      </div>
+      <h1 className="text-2xl text-center font-bold mb-4">
+        {formData.churchName}
+      </h1>
+      <h3 className="text-2xl text-center  mb-4">Cadastro de Membros</h3>
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Avatar */}
         <div className="flex items-center space-x-4">
