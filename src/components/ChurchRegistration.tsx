@@ -2,21 +2,11 @@ import { useState } from "react";
 import { Camera, Plus, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { RegistrationFormData } from "@/types/data";
+import { INITIAL_FORM_STATE } from "@/consts/INITIAL_FORM_STATE";
 
 const ChurchRegistration = () => {
-  const [formData, setFormData] = useState<RegistrationFormData>({
-    churchName: "Igreja Embaixada da Rocha Viva",
-    fullName: "",
-    gender: "",
-    birthDate: "",
-    cep: "",
-    street: "",
-    neighborhood: "",
-    city: "",
-    state: "",
-    hasKids: false,
-    kids: [],
-  });
+  const [formData, setFormData] =
+    useState<RegistrationFormData>(INITIAL_FORM_STATE);
   const [avatarPreview, setAvatarPreview] = useState<string>("");
   const [kidsAvatarPreviews, setKidsAvatarPreviews] = useState<string[]>([]);
   const { toast } = useToast();
