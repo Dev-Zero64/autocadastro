@@ -3,6 +3,7 @@ import { Camera, Plus, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { RegistrationFormData } from "@/types/data";
 import { INITIAL_FORM_STATE } from "@/consts/INITIAL_FORM_STATE";
+import { Link } from "react-router-dom";
 
 const ChurchRegistration = () => {
   const [formData, setFormData] =
@@ -456,6 +457,14 @@ const ChurchRegistration = () => {
           Finalizar Cadastro
         </button>
       </form>
+      <div className="flex justify-center mt-4">
+        <Link
+          to={"/alternative"}
+          className="text-gray-600 hover:text-gray-800 transition-colors"
+        >
+          Alternativo
+        </Link>
+      </div>
     </div>
   );
 };
