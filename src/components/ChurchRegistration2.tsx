@@ -471,7 +471,7 @@ const ChurchRegistration = () => {
           Finalizar Cadastro
         </button>
       </form>
-      <div className="flex justify-center mt-4">
+      <div className="flex justify-center mt-8">
         <Link
           to={"/"}
           className="text-gray-600 hover:text-gray-800 transition-colors"
